@@ -29,6 +29,8 @@ public class UserServiceImpl implements IUserService {
     public UserDto getUsers(int id) {
         Users users = userRepo.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("No User Found By This Id"));
+        if(!users.isStatus())
+            throw  new UserAlreadyExistsException("User Account is Temporary Closed");
         return mapper.map(users, UserDto.class);
     }
 
@@ -115,6 +117,8 @@ public class UserServiceImpl implements IUserService {
     public UserDto getUsers(String email) {
         Users users = userRepo.findByEmail(email).orElseThrow(() ->
                 new ResourceNotFoundException("No User Found By This Email"));
+        if(!users.isStatus())
+            throw  new UserAlreadyExistsException("User Account is Temporary Closed");
         return mapper.map(users, UserDto.class);
     }
 

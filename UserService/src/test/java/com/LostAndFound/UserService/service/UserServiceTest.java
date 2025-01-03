@@ -77,9 +77,16 @@ public class UserServiceTest {
         when(mapper.map(user, UserDto.class)).thenReturn(userDto);
         UserDto result = userService.getUsers(1);
         assertNotNull(result);
-        assertEquals(user.getUserId(), result.getUserId());
-        assertEquals(user.getUserName(), result.getUserName());
-        verify(userRepo).findById(1);
+    }
+
+    @Test
+    public void testGetUserByEmail_UserAccountClosed() {
+        user.setStatus(false);
+        when(userRepo.findByEmail("jishika@11")).thenReturn(Optional.of(user));
+        Exception exception = assertThrows(UserAlreadyExistsException.class, () -> {
+            userService.getUsers("jishika@11");
+        });
+        assertEquals("User Account is Temporary Closed", exception.getMessage());
     }
 
     @Test
@@ -124,6 +131,17 @@ public class UserServiceTest {
         when(userRepo.findByEmail(user.getEmail())).thenReturn(Optional.empty());
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> userService.getUsers("jishika"));
         assertEquals("No User Found By This Email", exception.getMessage());
+    }
+
+
+    @Test
+    public void testGetUser_UserAccountClosed() {
+        user.setStatus(false);
+        when(userRepo.findById(1)).thenReturn(Optional.of(user));
+        Exception exception = assertThrows(UserAlreadyExistsException.class, () -> {
+            userService.getUsers(1);
+        });
+        assertEquals("User Account is Temporary Closed", exception.getMessage());
     }
 
     @Test

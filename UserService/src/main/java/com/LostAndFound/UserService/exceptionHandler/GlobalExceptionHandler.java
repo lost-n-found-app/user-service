@@ -1,5 +1,6 @@
 package com.LostAndFound.UserService.exceptionHandler;
 
+import com.LostAndFound.UserService.exceptions.UserAccountTemporaryClosedException;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.exceptions.ResourceNotFoundException;
 import com.LostAndFound.UserService.exceptions.UserAlreadyExistsException;
@@ -23,6 +24,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<ApiResponse> userAlreadyExistsException(UserAlreadyExistsException e)
+    {
+        ApiResponse response= new ApiResponse.Builder().message(e.getMessage())
+                .statusCode(HttpStatus.NOT_FOUND)
+                .success(false)
+                .build();
+        return  new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse> userAccountTemporaryClosedException(UserAccountTemporaryClosedException e)
     {
         ApiResponse response= new ApiResponse.Builder().message(e.getMessage())
                 .statusCode(HttpStatus.NOT_FOUND)
