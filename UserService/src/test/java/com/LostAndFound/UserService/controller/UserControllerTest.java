@@ -95,7 +95,7 @@ public class UserControllerTest {
     {
         List<UserDto> list=Arrays.asList(userDto,userDto1);
         when(userService.getUsers()).thenReturn(list);
-        ResponseEntity<UserDto> res = userController.getUserById(user.getUserId());
+        ResponseEntity<List<UserDto>> res = userController.getUsers();
         assertNotNull(res);
         assertTrue(response.isSuccess());
     }
@@ -108,6 +108,23 @@ public class UserControllerTest {
         assertNotNull(resp);
         assertTrue(response.isSuccess());
     }
+
+    @Test
+    void getAllDisableUsers()
+    {
+        UserDto userDto=new UserDto();
+        userDto.setUserId(1);
+        userDto.setUserName("Ishika");
+        userDto.setEmail("ishika@11");
+        userDto.setStatus(false);
+
+        List<UserDto> list=Arrays.asList(userDto,userDto1);
+        when(userService.getUsers()).thenReturn(list);
+        ResponseEntity<List<UserDto>> res = userController.getAllUser_Disable();
+        assertNotNull(res);
+        assertTrue(response.isSuccess());
+    }
+
 
     @Test
     void enableUser()
