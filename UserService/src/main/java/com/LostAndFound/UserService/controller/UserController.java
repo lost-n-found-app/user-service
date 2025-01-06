@@ -67,4 +67,11 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/getAllUser_Disable")
+    public ResponseEntity<List<UserDto>>  getAllUser_Disable()
+    {
+        List<UserDto> list = userService.getAllUser_Disable();
+        return new ResponseEntity<>(list,HttpStatus.OK);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.LostAndFound.UserService.service.service.impl;
 
+import com.LostAndFound.UserService.exceptions.UserAccountTemporaryClosedException;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.entity.Users;
@@ -30,7 +31,7 @@ public class UserServiceImpl implements IUserService {
         Users users = userRepo.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("No User Found By This Id"));
         if(!users.isStatus())
-            throw  new UserAlreadyExistsException("User Account is Temporary Closed");
+            throw  new UserAccountTemporaryClosedException("User Account is Temporary Closed");
         return mapper.map(users, UserDto.class);
     }
 
@@ -86,6 +87,17 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public List<UserDto> getAllUser_Disable() {
+        List<Users> list = userRepo.findAllStatus(false);
+        List<UserDto> dtoList = new ArrayList<>();
+        for (Users user : list) {
+            UserDto userDto = mapper.map(user, UserDto.class);
+            dtoList.add(userDto);
+        }
+        return dtoList;
+    }
+
+    @Override
     public ApiResponse updateUserInfo(String email, Users user) {
         Users users = userRepo.findByEmail(email).orElseThrow(() ->
                 new ResourceNotFoundException("No User Found By This Email"));
@@ -118,7 +130,7 @@ public class UserServiceImpl implements IUserService {
         Users users = userRepo.findByEmail(email).orElseThrow(() ->
                 new ResourceNotFoundException("No User Found By This Email"));
         if(!users.isStatus())
-            throw  new UserAlreadyExistsException("User Account is Temporary Closed");
+            throw  new UserAccountTemporaryClosedException("User Account is Temporary Closed");
         return mapper.map(users, UserDto.class);
     }
 

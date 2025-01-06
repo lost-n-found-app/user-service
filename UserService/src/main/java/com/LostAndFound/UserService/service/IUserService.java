@@ -23,4 +23,6 @@ public interface IUserService {
     public List<UserDto> getUsers();
 
     public ApiResponse enableUserAccount(String email);
+
+    public List<UserDto> getAllUser_Disable();
 }
