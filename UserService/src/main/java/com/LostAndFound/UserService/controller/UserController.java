@@ -3,7 +3,7 @@ package com.LostAndFound.UserService.controller;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.entity.Users;
-import com.LostAndFound.UserService.service.IUserService;
+import com.LostAndFound.UserService.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +15,13 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     @Autowired
-    IUserService userService;
+    UserService userService;
 
     @PostMapping("/saveUser")
     public ResponseEntity<ApiResponse> saveUser(@RequestBody Users user) {
         ApiResponse response = userService.saveUser(user);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
 
     @GetMapping("/getUserById/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Integer id) {
@@ -66,7 +65,6 @@ public class UserController {
         ApiResponse response = userService.updateUserInfo(email,user);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 
     @GetMapping("/getAllUser_Disable")
     public ResponseEntity<List<UserDto>>  getAllUser_Disable()
