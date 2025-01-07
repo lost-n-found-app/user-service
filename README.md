@@ -1,4 +1,4 @@
-# User Service   
+User Service   
 This code contains the User Service for the Lost and Found application, which is based microservices architecture.The User Service handles all operations related to user management.
 
 ## Setup YugaByte and Config with pgAdmin
@@ -24,8 +24,5 @@ spring.datasource.url=jdbc:postgresql://database_hostname:5432/dbName
 spring.datasource.username=your_username
 spring.datasource.password=your_password
 spring.datasource.hikari.data-source-properties.sslrootcert=path/to/root.file
-
-
-
 
 
