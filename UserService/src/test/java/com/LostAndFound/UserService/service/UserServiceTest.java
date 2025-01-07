@@ -3,6 +3,7 @@ package com.LostAndFound.UserService.service;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.entity.Users;
 import com.LostAndFound.UserService.exceptions.ResourceNotFoundException;
+import com.LostAndFound.UserService.exceptions.UserAccountTemporaryClosedException;
 import com.LostAndFound.UserService.exceptions.UserAlreadyExistsException;
 import com.LostAndFound.UserService.repository.IUserRepository;
 import com.LostAndFound.UserService.response.ApiResponse;
@@ -36,7 +37,6 @@ public class UserServiceTest {
     private UserServiceImpl userService;
     @Mock
     private ModelMapper mapper;
-
     private ApiResponse response;
 
     @BeforeEach
@@ -83,7 +83,7 @@ public class UserServiceTest {
     public void testGetUserByEmail_UserAccountClosed() {
         user.setStatus(false);
         when(userRepo.findByEmail("jishika@11")).thenReturn(Optional.of(user));
-        Exception exception = assertThrows(UserAlreadyExistsException.class, () -> {
+        Exception exception = assertThrows(UserAccountTemporaryClosedException.class, () -> {
             userService.getUsers("jishika@11");
         });
         assertEquals("User Account is Temporary Closed", exception.getMessage());
@@ -138,7 +138,7 @@ public class UserServiceTest {
     public void testGetUser_UserAccountClosed() {
         user.setStatus(false);
         when(userRepo.findById(1)).thenReturn(Optional.of(user));
-        Exception exception = assertThrows(UserAlreadyExistsException.class, () -> {
+        Exception exception = assertThrows(UserAccountTemporaryClosedException.class, () -> {
             userService.getUsers(1);
         });
         assertEquals("User Account is Temporary Closed", exception.getMessage());
@@ -204,19 +204,17 @@ public class UserServiceTest {
     }
 
     @Test
-    void saveUser()
-    {
+    void saveUser() {
         response.setSuccess(true);
         response.setMessage("User Successfully Added");
         when(userRepo.findByEmail(user.getEmail())).thenReturn(Optional.empty());
         ApiResponse response = userService.saveUser(user);
         assertTrue(response.isSuccess());
-        assertEquals(response.getMessage(),"User Successfully Added");
+        assertEquals(response.getMessage(), "User Successfully Added");
     }
 
     @Test
-    void saveUser_AlreadyExists()
-    {
+    void saveUser_AlreadyExists() {
         Users users = new Users();
         users.setUserId(1);
         users.setEmail("jishika@11");
@@ -225,7 +223,7 @@ public class UserServiceTest {
         users.setRole("USER");
 
         when(userRepo.findByEmail(users.getEmail())).thenReturn(Optional.of(users));
-        assertThrows(UserAlreadyExistsException.class,()-> userService.saveUser(users));
+        assertThrows(UserAlreadyExistsException.class, () -> userService.saveUser(users));
     }
 
     @Test

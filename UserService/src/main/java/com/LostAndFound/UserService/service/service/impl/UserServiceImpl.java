@@ -7,7 +7,7 @@ import com.LostAndFound.UserService.entity.Users;
 import com.LostAndFound.UserService.exceptions.ResourceNotFoundException;
 import com.LostAndFound.UserService.exceptions.UserAlreadyExistsException;
 import com.LostAndFound.UserService.repository.IUserRepository;
-import com.LostAndFound.UserService.service.IUserService;
+import com.LostAndFound.UserService.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl implements IUserService {
+public class UserServiceImpl implements UserService {
 
     @Autowired
     ModelMapper mapper;
@@ -30,6 +30,7 @@ public class UserServiceImpl implements IUserService {
     public UserDto getUsers(int id) {
         Users users = userRepo.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("No User Found By This Id"));
+
         if(!users.isStatus())
             throw  new UserAccountTemporaryClosedException("User Account is Temporary Closed");
         return mapper.map(users, UserDto.class);

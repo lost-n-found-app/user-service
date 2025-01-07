@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
-public interface IUserRepository extends JpaRepository<Users,Integer> {
+public interface IUserRepository extends JpaRepository<Users, Integer> {
     Optional<Users> findByEmail(String email);
 
     void deleteByEmail(String email);
