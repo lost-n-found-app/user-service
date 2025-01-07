@@ -6,7 +6,7 @@ import com.LostAndFound.UserService.entity.Users;
 
 import java.util.List;
 
-public interface IUserService {
+public interface UserService {
 
     public ApiResponse saveUser(Users user);
 
