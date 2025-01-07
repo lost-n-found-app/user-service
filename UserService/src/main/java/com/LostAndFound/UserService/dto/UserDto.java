@@ -1,30 +1,16 @@
 package com.LostAndFound.UserService.dto;
 
-import jakarta.persistence.Column;
+import com.LostAndFound.UserService.enums.RoleEnum;
+
+import java.util.Set;
 
 public class UserDto {
 
-    private int userId;
-
     private String userName;
-
     private String email;
-
-    private String address;
-
-    private String contact;
-
-    private boolean status;
+    private String password;
 
     public UserDto() {
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
     public String getUserName() {
@@ -43,27 +29,12 @@ public class UserDto {
         this.email = email;
     }
 
-    public String getAddress() {
-        return address;
+    public String getPassword() {
+        return password;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setPassword(String password) {
+        this.password = password;
     }
-
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
+    
 }
