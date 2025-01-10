@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -86,6 +85,17 @@ public class UserServiceImpl implements UserService {
                 .statusCode(HttpStatus.OK)
                 .success(true).build();
 
+    }
+
+    @Override
+    public ApiResponse unLockUserAccount(String email) {
+        Users user = userRepo.findByEmail(email).
+                orElseThrow(() -> new ResourceNotFoundException("Email is Incorrect "));
+        user.setLocked(false);
+        user.setLoginAttempts(0);
+        userRepo.save(user);
+        return new ApiResponse.Builder().message("Successfully UnLock User Account")
+                .statusCode(HttpStatus.OK).success(true).build();
     }
 
     @Override

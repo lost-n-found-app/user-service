@@ -19,18 +19,25 @@ public class UserController {
     @PostMapping("/saveUser")
     public ResponseEntity<ApiResponse> saveUser(@RequestBody UserDto userDto) {
         ApiResponse response = userService.saveUser(userDto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
     @GetMapping("/loginUser")
     public ResponseEntity<ApiResponse> loginUser(@RequestBody UserDto userDto) {
         ApiResponse response = userService.loginUser(userDto);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
     @PatchMapping("/updatePassword")
     public ResponseEntity<ApiResponse> updatePassword(@RequestBody PasswordUpdateDto passwordUpdate) {
         ApiResponse response = userService.updatePassword(passwordUpdate);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
     }
+
+    @PatchMapping("/unlockUserAccount/{email}")
+    public ResponseEntity<ApiResponse> unlockUserAccount(@PathVariable String email) {
+        ApiResponse response = userService.unLockUserAccount(email);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
 }

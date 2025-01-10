@@ -10,5 +10,7 @@ public interface UserService {
 
     public ApiResponse loginUser(UserDto userDto);
 
+    public ApiResponse unLockUserAccount(String email);
+
     public ApiResponse updatePassword(PasswordUpdateDto passwordUpdate);
 }
