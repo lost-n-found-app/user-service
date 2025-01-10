@@ -1,9 +1,8 @@
 spring:
   application:
-    name: Product-Service
-
+    name: USERSERVICE
   datasource:
-    url: jdbc:postgresql://ap-south-1.000a698e-9531-4f05-81c7-2b0e60704508.aws.yugabyte.cloud:5433/product_db
+    url: jdbc:postgresql://ap-south-1.000a698e-9531-4f05-81c7-2b0e60704508.aws.yugabyte.cloud:5433/user_db
     username: admin
     password: LMI7EUdijsBdjbKs6rrRdTBWBs2Irw
     driver-class-name: org.postgresql.Driver
@@ -12,7 +11,6 @@ spring:
         ssl: true
         sslmode: require
         sslrootcert: file:///C:/Users/hp/Downloads/root.crt
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,7 +19,14 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
-          url: jdbc:postgresql://ap-south-1.000a698e-9531-4f05-81c7-2b0e60704508.aws.yugabyte.cloud:5433/product_db
-
+          url: jdbc:postgresql://ap-south-1.000a698e-9531-4f05-81c7-2b0e60704508.aws.yugabyte.cloud:5433/user_db
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
 server:
   port: 8082
