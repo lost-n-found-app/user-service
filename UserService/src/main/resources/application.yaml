@@ -1,6 +1,6 @@
 spring:
   application:
-    name: USERSERVICE
+    name: USER-SERVICE
   profiles:
     active: postgres
   datasource:
