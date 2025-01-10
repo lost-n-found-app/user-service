@@ -2,11 +2,17 @@ package com.LostAndFound.UserService.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Entity
+@Table(name = "user_data")
 public class Users {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "user_id")
+    private UUID userId;
 
     private String userName;
 
@@ -15,33 +21,34 @@ public class Users {
 
     private String password;
 
-    private String role;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "role_id")
+    private Role role;
 
-    private String address;
+    private boolean locked = false;
 
-    private String contact;
+    private int loginAttempts = 0;
 
-    private boolean status;
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     public Users() {
     }
 
-    public Users(Integer userId, String userName, String email, String password, String role, String address, String contact, boolean status) {
-        this.userId = userId;
-        this.userName = userName;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.address = address;
-        this.contact = contact;
-        this.status = status;
+    public boolean isLocked() {
+        return locked;
     }
 
-    public Integer getUserId() {
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
@@ -69,49 +76,47 @@ public class Users {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
-    public String getAddress() {
-        return address;
+    public int getLoginAttempts() {
+        return loginAttempts;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setLoginAttempts(int loginAttempts) {
+        this.loginAttempts = loginAttempts;
     }
 
-    public String getContact() {
-        return contact;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setContact(String contact) {
-        this.contact = contact;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public boolean isStatus() {
-        return status;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Users{" +
                 "userId=" + userId +
                 ", userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", role='" + role + '\'' +
-                ", address='" + address + '\'' +
-                ", contact='" + contact + '\'' +
-                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

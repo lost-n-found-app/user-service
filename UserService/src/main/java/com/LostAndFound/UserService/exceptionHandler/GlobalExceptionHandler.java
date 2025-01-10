@@ -1,10 +1,8 @@
 package com.LostAndFound.UserService.exceptionHandler;
 
 
-import com.LostAndFound.UserService.exceptions.UserAccountTemporaryClosedException;
+import com.LostAndFound.UserService.exceptions.*;
 import com.LostAndFound.UserService.response.ApiResponse;
-import com.LostAndFound.UserService.exceptions.ResourceNotFoundException;
-import com.LostAndFound.UserService.exceptions.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,13 +13,12 @@ public class
 GlobalExceptionHandler {
 
     @ExceptionHandler
-    public ResponseEntity<ApiResponse> resourceNotFoundException(ResourceNotFoundException e)
-    {
-        ApiResponse response= new ApiResponse.Builder().message(e.getMessage())
+    public ResponseEntity<ApiResponse> resourceNotFoundException(ResourceNotFoundException e) {
+        ApiResponse response = new ApiResponse.Builder().message(e.getMessage())
                 .statusCode(HttpStatus.NOT_FOUND)
                 .success(false)
                 .build();
-        return  new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
@@ -33,11 +30,19 @@ GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UserAccountTemporaryClosedException.class)
-    public ResponseEntity<ApiResponse> userAccountTemporaryClosedException(UserAccountTemporaryClosedException e) {
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse> roleNotFoundException(RoleNotFoundException e) {
         ApiResponse response = new ApiResponse.Builder().message(e.getMessage())
-                .statusCode(HttpStatus.FORBIDDEN)
+                .statusCode(HttpStatus.NOT_FOUND)
                 .build();
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        return new ResponseEntity(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse> passwordIsIncorrectException(PasswordMismatchException e) {
+        ApiResponse response = new ApiResponse.Builder().message(e.getMessage())
+                .statusCode(HttpStatus.CONFLICT)
+                .build();
+        return new ResponseEntity(response, HttpStatus.CONFLICT);
     }
 }

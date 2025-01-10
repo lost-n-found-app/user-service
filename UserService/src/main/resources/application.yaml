@@ -1,6 +1,6 @@
 spring:
   application:
-    name: USER-SERVICE
+    name: USERSERVICE
   datasource:
     url: jdbc:postgresql://ap-south-1.000a698e-9531-4f05-81c7-2b0e60704508.aws.yugabyte.cloud:5433/user_db
     username: admin
@@ -10,7 +10,7 @@ spring:
       data-source-properties:
         ssl: true
         sslmode: require
-        sslrootcert: file:///C:/Users/ASUS/Downloads/root.crt
+        sslrootcert: file:///C:/Users/hp/Downloads/root.crt
   jpa:
     hibernate:
       ddl-auto: update

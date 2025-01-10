@@ -1,28 +1,16 @@
 package com.LostAndFound.UserService.service;
 
+import com.LostAndFound.UserService.dto.PasswordUpdateDto;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
-import com.LostAndFound.UserService.entity.Users;
-
-import java.util.List;
 
 public interface UserService {
 
-    public ApiResponse saveUser(Users user);
+    public ApiResponse saveUser(UserDto userDto);
 
-    public ApiResponse deleteUser(String email);
+    public ApiResponse loginUser(UserDto userDto);
 
-    public ApiResponse disableUserAccount(String email);
+    public ApiResponse unLockUserAccount(String email);
 
-    public ApiResponse updateUserInfo(String email, Users user);
-
-    public UserDto getUsers(String email);
-
-    public UserDto getUsers(int id);
-
-    public List<UserDto> getUsers();
-
-    public ApiResponse enableUserAccount(String email);
-
-    public List<UserDto> getAllUser_Disable();
+    public ApiResponse updatePassword(PasswordUpdateDto passwordUpdate);
 }

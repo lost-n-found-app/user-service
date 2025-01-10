@@ -1,77 +1,57 @@
 package com.LostAndFound.UserService.controller;
 
+import com.LostAndFound.UserService.dto.PasswordUpdateDto;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
-import com.LostAndFound.UserService.entity.Users;
 import com.LostAndFound.UserService.service.UserService;
+import com.LostAndFound.UserService.service.service.impl.UserServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     @Autowired
     UserService userService;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @PostMapping("/saveUser")
-    public ResponseEntity<ApiResponse> saveUser(@RequestBody Users user) {
-        ApiResponse response = userService.saveUser(user);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse> saveUser(@RequestBody UserDto userDto) {
+        logger.info("Received request to save user with email: {}", userDto.getEmail());
+        ApiResponse response = userService.saveUser(userDto);
+        logger.info("User saved successfully with email: {}", userDto.getEmail());
+        return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
-    @GetMapping("/getUserById/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Integer id) {
-        return new ResponseEntity<>(userService.getUsers(id), HttpStatus.OK);
+    @GetMapping("/loginUser")
+    public ResponseEntity<ApiResponse> loginUser(@RequestBody UserDto userDto) {
+        logger.info("Received login attempt for user with email: {}", userDto.getEmail());
+        ApiResponse response = userService.loginUser(userDto);
+        if(response.getStatusCode()==HttpStatus.OK)
+            logger.info("User login successful for email: {}", userDto.getEmail());
+        else
+            logger.warn("Login failed for user with email: {}", userDto.getEmail());
+        return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
-    @GetMapping("/getUsers")
-    public ResponseEntity<List<UserDto>> getUsers() {
-        return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
+    @PatchMapping("/updatePassword")
+    public ResponseEntity<ApiResponse> updatePassword(@RequestBody PasswordUpdateDto passwordUpdate) {
+        logger.info("Received password update request for user with email: {}", passwordUpdate.getEmail());
+        ApiResponse response = userService.updatePassword(passwordUpdate);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
-    @GetMapping("/getUserByEmail/{email}")
-    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
-        return new ResponseEntity<>(userService.getUsers(email), HttpStatus.OK);
+    @PatchMapping("/unlockUserAccount/{email}")
+    public ResponseEntity<ApiResponse> unlockUserAccount(@PathVariable String email) {
+        logger.info("Received request to unlock user account for email: {}", email);
+        ApiResponse response = userService.unLockUserAccount(email);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
     }
-
-    @PatchMapping("/disableUser/{email}")
-    public ResponseEntity<ApiResponse> disableUser(@PathVariable String email) {
-        ApiResponse response = userService.disableUserAccount(email);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-
-    }
-
-    @PatchMapping("/enableUser/{email}")
-    public ResponseEntity<ApiResponse> enableUser(@PathVariable String email) {
-        ApiResponse response = userService.enableUserAccount(email);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-
-    }
-
-    @DeleteMapping("/deleteUser/{email}")
-    public ResponseEntity<ApiResponse>  deleteUser(@PathVariable String email)
-    {
-        ApiResponse response = userService.deleteUser(email);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PutMapping("/updateUser/{email}")
-    public ResponseEntity<ApiResponse>  updateUser(@PathVariable String email,@RequestBody Users user)
-    {
-        ApiResponse response = userService.updateUserInfo(email,user);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/getAllUser_Disable")
-    public ResponseEntity<List<UserDto>>  getAllUser_Disable()
-    {
-        List<UserDto> list = userService.getAllUser_Disable();
-        return new ResponseEntity<>(list,HttpStatus.OK);
-    }
-
 
 }

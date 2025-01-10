@@ -1,148 +1,155 @@
 package com.LostAndFound.UserService.service.service.impl;
 
-import com.LostAndFound.UserService.exceptions.UserAccountTemporaryClosedException;
+import com.LostAndFound.UserService.dto.PasswordUpdateDto;
+import com.LostAndFound.UserService.entity.Role;
+import com.LostAndFound.UserService.enums.RoleEnum;
+import com.LostAndFound.UserService.exceptions.*;
+import com.LostAndFound.UserService.repository.RoleRepository;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.entity.Users;
-import com.LostAndFound.UserService.exceptions.ResourceNotFoundException;
-import com.LostAndFound.UserService.exceptions.UserAlreadyExistsException;
-import com.LostAndFound.UserService.repository.IUserRepository;
+import com.LostAndFound.UserService.repository.UserRepository;
 import com.LostAndFound.UserService.service.UserService;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl implements UserService {
 
+public class UserServiceImpl implements UserService {
     @Autowired
     ModelMapper mapper;
 
     @Autowired
-    IUserRepository userRepo;
+    RoleRepository roleRepo;
+
+    @Autowired
+    UserRepository userRepo;
+
+    private static final int max_Attempt = 3;
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
-    public UserDto getUsers(int id) {
-        Users users = userRepo.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("No User Found By This Id"));
-
-        if(!users.isStatus())
-            throw  new UserAccountTemporaryClosedException("User Account is Temporary Closed");
-        return mapper.map(users, UserDto.class);
+    public ApiResponse saveUser(UserDto userDto) {
+        logger.debug("Checking if email {} already exists in the database", userDto.getEmail());
+        Optional<Users> users = userRepo.findByEmail(userDto.getEmail());
+        if (users.isPresent()) {
+            logger.error("If email Not Found ");
+            throw new UserAlreadyExistsException("User Failed to Added [EMAIL SHOULD BE UNIQUE]");
+        }
+        logger.debug("Fetching role: ROLE_ADMIN");
+        Role role = roleRepo.findByRoleName(RoleEnum.ROLE_ADMIN).orElseThrow(() ->
+        {
+            logger.error("Role not found: ROLE_ADMIN");
+            return new RoleNotFoundException("No Role Found");
+        });
+        logger.debug("Creating new user entity for email: {}", userDto.getEmail());
+        Users user = new Users();
+        user.setUserName(userDto.getUserName());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(userDto.getPassword());
+        user.setRole(role);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepo.save(user);
+        logger.info("User successfully saved with email: {}", userDto.getEmail());
+        return new ApiResponse.Builder()
+                .message("User Successfully Added")
+                .statusCode(HttpStatus.CREATED)
+                .success(true).build();
     }
 
     @Override
-    public ApiResponse saveUser(Users user) {
-        Optional<Users> users = userRepo.findByEmail(user.getEmail());
-        if (users.isEmpty()) {
-            user.setStatus(true);
-            user.setRole("USER");
+    public ApiResponse loginUser(UserDto userDto) {
+        logger.info("Attempting to log in user with email: {}", userDto.getEmail());
+        Users user = userRepo.findByEmail(userDto.getEmail()).orElseThrow(() ->
+                {
+                    logger.error("Login failed: Email not found - {}", userDto.getEmail());
+                    return new ResourceNotFoundException("Email is Incorrect ");
+                }
+        );
+        if (user.isLocked()) {
+            logger.warn("Login failed: User account is locked - {}", userDto.getEmail());
+            return new ApiResponse.Builder()
+                    .message("User account is locked due to too many failed attempts.")
+                    .statusCode(HttpStatus.FORBIDDEN)
+                    .success(false)
+                    .build();
+        }
+        if (!user.getPassword().equals(userDto.getPassword())) {
+            user.setLoginAttempts(user.getLoginAttempts() + 1);
+            if (user.getLoginAttempts() >= max_Attempt) {
+                user.setLocked(true);
+                logger.error("User account locked due to exceeding maximum attempts: {}", userDto.getEmail());
+            }
             userRepo.save(user);
             return new ApiResponse.Builder()
-                    .message("User Successfully Added")
-                    .statusCode(HttpStatus.CREATED)
-                    .success(true).build();
+                    .message("Invalid credentials ,You Have only 3 attempts ")
+                    .build();
         }
-        throw new UserAlreadyExistsException("User Failed to Added [EMAIL SHOULD BE UNIQUE]");
-    }
-
-    @Override
-    public ApiResponse deleteUser(String email) {
-        Users users = userRepo.findByEmail(email).orElseThrow(() ->
-                new ResourceNotFoundException("No User Found By This Email"));
-                userRepo.deleteByEmail(email);
+        logger.info("Login successful for email: {}", userDto.getEmail());
+        user.setLoginAttempts(0);
+        user.setLocked(false);
+        userRepo.save(user);
         return new ApiResponse.Builder()
-                .message("User Successfully Deleted")
+                .message("User Successfully Login")
                 .statusCode(HttpStatus.OK)
                 .success(true).build();
+
     }
 
     @Override
-    public ApiResponse disableUserAccount(String email)
-    {
-        Users users = userRepo.findByEmail(email).orElseThrow(() ->
-                new ResourceNotFoundException("No User Found By This Email"));
-        users.setStatus(false);
-        userRepo.save(users);
+    public ApiResponse unLockUserAccount(String email) {
+        logger.info("Attempting to unlock user account with email: {}", email);
+        Users user = userRepo.findByEmail(email).
+                orElseThrow(() -> {
+                    logger.error("Unlock account failed: Email not found - {}", email);
+                    return new ResourceNotFoundException("Email is Incorrect ");
+                });
+        user.setLocked(false);
+        user.setLoginAttempts(0);
+        userRepo.save(user);
+        logger.info("Successfully unlocked user account for email: {}", email);
+        return new ApiResponse.Builder().message("Successfully UnLock User Account")
+                .statusCode(HttpStatus.OK).success(true).build();
+    }
+
+    @Override
+    public ApiResponse updatePassword(PasswordUpdateDto passwordUpdate) {
+        Users users = userRepo.findByEmail(passwordUpdate.getEmail()).orElseThrow(() ->
+        {
+            logger.error("Password update failed: No user found for email: {}", passwordUpdate.getEmail());
+            return new ResourceNotFoundException("No User Found By This Email");
+        });
+        if (passwordUpdate.getCurrentPassword() != null &&
+                users.getPassword().equals(passwordUpdate.getCurrentPassword())) {
+            logger.info("Current password validation successful for email: {}", passwordUpdate.getEmail());
+            if (passwordUpdate.getNewPassword().equals(passwordUpdate.getReEnterPassword())) {
+                logger.info("New password match validation successful for email: {}", passwordUpdate.getEmail());
+                users.setPassword(passwordUpdate.getNewPassword());
+                userRepo.save(users);
+                logger.info("Password updated successfully for email: {}", passwordUpdate.getEmail());
+            } else {
+                logger.error("New password does not match re-entered password for email: {}", passwordUpdate.getEmail());
+                throw new PasswordMismatchException("New Password Does Not Match with Re- enter Passowrd");
+            }
+        } else {
+            logger.error("Current password is incorrect for email: {}", passwordUpdate.getEmail());
+            throw new PasswordMismatchException("Current Password Is Incorrect ");
+        }
         return new ApiResponse.Builder()
-                .message("User Account Disable")
+                .message("User Password Successfully Updated")
                 .statusCode(HttpStatus.OK)
                 .success(true).build();
-    }
-
-    public ApiResponse enableUserAccount(String email)
-    {
-        Users users = userRepo.findByEmail(email).orElseThrow(() ->
-                new ResourceNotFoundException("No User Found By This Email"));
-        users.setStatus(true);
-        userRepo.save(users);
-        return new ApiResponse.Builder()
-                .message("User Account Enable")
-                .statusCode(HttpStatus.OK)
-                .success(true).build();
-    }
-
-    @Override
-    public List<UserDto> getAllUser_Disable() {
-        List<Users> list = userRepo.findAllStatus(false);
-        List<UserDto> dtoList = new ArrayList<>();
-        for (Users user : list) {
-            UserDto userDto = mapper.map(user, UserDto.class);
-            dtoList.add(userDto);
-        }
-        return dtoList;
-    }
-
-    @Override
-    public ApiResponse updateUserInfo(String email, Users user) {
-        Users users = userRepo.findByEmail(email).orElseThrow(() ->
-                new ResourceNotFoundException("No User Found By This Email"));
-        if(user.getUserName()!=null)
-        {
-            users.setUserName(user.getUserName());
-        }
-        if(user.getAddress()!=null)
-        {
-            users.setAddress(user.getAddress());
-        }
-        if(user.getContact()!=null)
-        {
-            users.setContact(user.getContact());
-        }
-
-        if(user.getPassword()!=null)
-        {
-            users.setPassword(user.getPassword());
-        }
-         userRepo.save(users);
-        return new ApiResponse.Builder()
-                .message("User Info Successfully Updated")
-                .statusCode(HttpStatus.OK)
-                .success(true).build();
-    }
-
-    @Override
-    public UserDto getUsers(String email) {
-        Users users = userRepo.findByEmail(email).orElseThrow(() ->
-                new ResourceNotFoundException("No User Found By This Email"));
-        if(!users.isStatus())
-            throw  new UserAccountTemporaryClosedException("User Account is Temporary Closed");
-        return mapper.map(users, UserDto.class);
-    }
-
-    @Override
-    public List<UserDto> getUsers() {
-        List<Users> list = userRepo.findAllStatus(true);
-        List<UserDto> dtoList = new ArrayList<>();
-        for (Users user : list) {
-            UserDto userDto = mapper.map(user, UserDto.class);
-            dtoList.add(userDto);
-        }
-        return dtoList;
     }
 }
+
+
