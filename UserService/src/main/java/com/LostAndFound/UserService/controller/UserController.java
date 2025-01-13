@@ -4,7 +4,7 @@ import com.LostAndFound.UserService.dto.PasswordUpdateDto;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.service.UserService;
-import com.LostAndFound.UserService.service.service.impl.UserServiceImpl;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping("/saveUser")
-    public ResponseEntity<ApiResponse> saveUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<ApiResponse> saveUser(@Valid @RequestBody UserDto userDto) {
         logger.info("Received request to save user with email: {}", userDto.getEmail());
         ApiResponse response = userService.saveUser(userDto);
         logger.info("User saved successfully with email: {}", userDto.getEmail());
