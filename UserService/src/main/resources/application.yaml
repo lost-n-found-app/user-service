@@ -1,6 +1,6 @@
 spring:
   application:
-    name: USERSERVICE
+    name: USER-SERVICE
   datasource:
     url: jdbc:postgresql://ap-south-1.000a698e-9531-4f05-81c7-2b0e60704508.aws.yugabyte.cloud:5433/user_db
     username: admin
@@ -30,3 +30,10 @@ eureka:
     prefer-ip-address: true
 server:
   port: 8082
+
+jwt:
+  secret: dKjmtcDhHxLwh92fP9obxBTK28+/qI7beKsaHR2hPik=
+
+logging:
+   level:
+     org.springframework.boot.context.properties: DEBUG
