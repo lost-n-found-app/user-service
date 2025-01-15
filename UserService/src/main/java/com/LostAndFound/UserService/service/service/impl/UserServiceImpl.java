@@ -59,6 +59,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
+        user.setPhoneNumber(userDto.getPhoneNumber());
         userRepo.save(user);
         logger.info("User successfully saved with email: {}", userDto.getEmail());
         return new ApiResponse.Builder()
