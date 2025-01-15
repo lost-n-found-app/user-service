@@ -56,14 +56,5 @@ public class UserController {
         ApiResponse response = userService.unLockUserAccount(email);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
-    @GetMapping("/greet")
-    public String greet()
-    {
-        return "hello";
-
-    }
-
-
-
 
 }
