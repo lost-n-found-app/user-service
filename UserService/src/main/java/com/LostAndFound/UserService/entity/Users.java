@@ -33,20 +33,7 @@ public class Users {
 
     private LocalDateTime updatedAt;
 
-    @Column(unique = true)
-    private String phoneNumber;
-
-
-
     public Users() {
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
     public boolean isLocked() {

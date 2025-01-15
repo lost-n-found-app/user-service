@@ -10,7 +10,6 @@ import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.entity.Users;
 import com.LostAndFound.UserService.repository.UserRepository;
 import com.LostAndFound.UserService.service.UserService;
-import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepo;
+
+    @Autowired
+    UserEventProducer userEventProducer;
 
     private static final int max_Attempt = 3;
 
@@ -59,9 +61,9 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        user.setPhoneNumber(userDto.getPhoneNumber());
         userRepo.save(user);
         logger.info("User successfully saved with email: {}", userDto.getEmail());
+        userEventProducer.sendUserRegisteredEvent(""+user.getUserId());
         return new ApiResponse.Builder()
                 .message("User Successfully Added")
                 .statusCode(HttpStatus.CREATED)
@@ -137,6 +139,7 @@ public class UserServiceImpl implements UserService {
                 logger.info("New password match validation successful for email: {}", passwordUpdate.getEmail());
                 users.setPassword(passwordUpdate.getNewPassword());
                 userRepo.save(users);
+                userEventProducer.sendPasswordResetEvent(""+users.getUserId());
                 logger.info("Password updated successfully for email: {}", passwordUpdate.getEmail());
             } else {
                 logger.error("New password does not match re-entered password for email: {}", passwordUpdate.getEmail());

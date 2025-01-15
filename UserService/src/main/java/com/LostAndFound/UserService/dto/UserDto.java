@@ -9,15 +9,7 @@ public class UserDto {
     private String userName;
     private String email;
     private String password;
-    private String phoneNumber;
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
     public UserDto() {
     }
 

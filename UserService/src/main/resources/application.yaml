@@ -30,10 +30,3 @@ eureka:
     prefer-ip-address: true
 server:
   port: 8082
-
-jwt:
-  secret: dKjmtcDhHxLwh92fP9obxBTK28+/qI7beKsaHR2hPik=
-
-logging:
-   level:
-     org.springframework.boot.context.properties: DEBUG
