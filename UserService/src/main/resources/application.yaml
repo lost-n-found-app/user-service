@@ -30,3 +30,14 @@ eureka:
     prefer-ip-address: true
 server:
   port: 8082
+
+  spring:
+    kafka:
+      bootstrap-servers: localhost:9092
+      consumer:
+        group-id: user-service-group
+        auto-offset-reset: earliest
+      topic:
+        user-events: user-events
+
+
