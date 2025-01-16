@@ -9,6 +9,8 @@ public class UserDto {
     private String userName;
     private String email;
     private String password;
+    private String phoneNumber;
+
 
     public UserDto() {
     }
@@ -35,6 +37,14 @@ public class UserDto {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
     
 }

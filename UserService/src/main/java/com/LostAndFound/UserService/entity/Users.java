@@ -33,6 +33,11 @@ public class Users {
 
     private LocalDateTime updatedAt;
 
+
+
+    @Column(unique = true)
+    private String phoneNumber;
+
     public Users() {
     }
 
@@ -106,6 +111,13 @@ public class Users {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     @Override
