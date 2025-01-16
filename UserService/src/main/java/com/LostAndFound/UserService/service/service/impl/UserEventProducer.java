@@ -1,20 +1,27 @@
 package com.LostAndFound.UserService.service.service.impl;
 
+import com.LostAndFound.UserService.commonClasses.ProductDto;
+import com.LostAndFound.UserService.commonClasses.UserProducerMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.UUID;
+
+@EnableKafka
 @Service
 public class UserEventProducer {
 
     private static final Logger logger = LoggerFactory.getLogger(UserEventProducer.class);
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-
-    public UserEventProducer(KafkaTemplate<String, String> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-    }
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+    @Autowired
+    private KafkaTemplate<String, UserProducerMessage> userKafkaTemplate;
 
     public void sendUserRegisteredEvent(String userId) {
         String message = "USER_REGISTERED:" + userId;
@@ -36,4 +43,11 @@ public class UserEventProducer {
         }
     }
 
+    public void createUserWithProducts(UUID userId, List<ProductDto> products) {
+        logger.info("Sent password reset event: {}", userId.toString());
+        UserProducerMessage userProducerMessage = new UserProducerMessage();
+        userProducerMessage.setUserId(userId);
+        userProducerMessage.setProducts(products);
+        userKafkaTemplate.send("user-product-topic", userProducerMessage);
+    }
 }

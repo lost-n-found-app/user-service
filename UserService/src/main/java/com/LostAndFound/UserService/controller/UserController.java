@@ -1,16 +1,21 @@
 package com.LostAndFound.UserService.controller;
 
+import com.LostAndFound.UserService.commonClasses.ProductDto;
 import com.LostAndFound.UserService.dto.PasswordUpdateDto;
+import com.LostAndFound.UserService.dto.UserProductDto;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.service.UserService;
-import com.LostAndFound.UserService.service.service.impl.UserServiceImpl;
+import com.LostAndFound.UserService.service.service.impl.UserEventProducer;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -19,13 +24,16 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    UserEventProducer eventProducer;
+
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping("/saveUser")
-    public ResponseEntity<ApiResponse> saveUser(@RequestBody UserDto userDto) {
-        logger.info("Received request to save user with email: {}", userDto.getEmail());
-        ApiResponse response = userService.saveUser(userDto);
-        logger.info("User saved successfully with email: {}", userDto.getEmail());
+    public ResponseEntity<ApiResponse> saveUserAndReportItem(@Valid @RequestBody UserProductDto userProduct) {
+        UserDto user = userProduct.getUser();
+        List<ProductDto> products = userProduct.getProducts();
+        ApiResponse response = userService.saveUserAndReportItem(user, products);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 

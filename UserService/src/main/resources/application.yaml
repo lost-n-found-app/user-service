@@ -30,3 +30,11 @@ eureka:
     prefer-ip-address: true
 server:
   port: 8082
+jwt:
+  secret: dKjmtcDhHxLwh92fP9obxBTK28+/qI7beKsaHR2hPik=
+kafka:
+  bootstrap-servers: localhost:9092
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  topic: user-product-topic
