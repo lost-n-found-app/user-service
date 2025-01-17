@@ -1,5 +1,6 @@
 package com.LostAndFound.UserService.service.service.impl;
 
+import com.LostAndFound.UserService.commonClasses.ProductDto;
 import com.LostAndFound.UserService.dto.PasswordUpdateDto;
 import com.LostAndFound.UserService.entity.Role;
 import com.LostAndFound.UserService.enums.RoleEnum;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -40,10 +42,9 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
-    public ApiResponse saveUser(UserDto userDto) {
-        logger.debug("Checking if email {} already exists in the database", userDto.getEmail());
-        Optional<Users> users = userRepo.findByEmail(userDto.getEmail());
-        if (users.isPresent()) {
+    public ApiResponse saveUserAndReportItem(UserDto userDto, List<ProductDto> products) {
+        Optional<Users> isUser = userRepo.findByEmail(userDto.getEmail());
+        if (isUser.isPresent()) {
             logger.error("If email Not Found ");
             throw new UserAlreadyExistsException("User Failed to Added [EMAIL SHOULD BE UNIQUE]");
         }
@@ -63,10 +64,17 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(userDto.getPhoneNumber());
         String phoneNumber = userDto.getPhoneNumber();
         userRepo.save(user);
+        Users save = userRepo.save(user);
         logger.info("User successfully saved with email: {}", userDto.getEmail());
         userEventProducer.sendUserRegisteredEvent("" + user.getUserId());
         notificationService.sendSms(phoneNumber, "Your user has been saved");
         return new ApiResponse.Builder().message("User Successfully Added").statusCode(HttpStatus.CREATED).success(true).build();
+        userEventProducer.createUserWithProducts(save.getUserId(), products);
+        userEventProducer.sendUserRegisteredEvent("" + user.getUserId());
+        return new ApiResponse.Builder()
+                .message("User Successfully Added")
+                .statusCode(HttpStatus.CREATED)
+                .success(true).build();
     }
 
     @Override
