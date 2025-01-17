@@ -16,19 +16,17 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String secretKey;
-    public boolean validateToken(String token, String number)
-    {
-        String extractedPhoneNumber=extractNumber(token);
-        return (extractedPhoneNumber.equals(number) && !isTokenExpired(token));
 
+    public boolean validateToken(String token, String number) {
+        String extractedPhoneNumber = extractNumber(token);
+        return (extractedPhoneNumber.equals(number) && !isTokenExpired(token));
     }
 
-    public String extractNumber(String token){
+    public String extractNumber(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private Claims extractAllClaims(String token)
-    {
+    public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getKey())
                 .build()
@@ -36,25 +34,21 @@ public class JwtService {
                 .getPayload();
     }
 
-    boolean  isTokenExpired(String token){
+    boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    Date extractExpiration(String token)
-    {
+    Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private<T> T extractClaim(String token, Function<Claims,T> claimsResolver)
-    {
-        Claims claims=extractAllClaims(token);
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
+
     SecretKey getKey() {
-        byte[] keyBytes= Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
-
     }
-
-
 }

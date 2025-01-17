@@ -1,12 +1,10 @@
 package com.LostAndFound.UserService.exceptions;
 
-public class RoleNotFoundException extends  RuntimeException
-{
+public class RoleNotFoundException extends RuntimeException {
     public RoleNotFoundException() {
     }
 
-    public RoleNotFoundException(String message)
-    {
+    public RoleNotFoundException(String message) {
         super(message);
     }
 }

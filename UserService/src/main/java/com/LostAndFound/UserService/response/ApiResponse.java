@@ -1,17 +1,28 @@
 package com.LostAndFound.UserService.response;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+
+@NoArgsConstructor
+@AllArgsConstructor
 public class ApiResponse {
 
     private String message;
     private HttpStatus statusCode;
     private boolean success;
 
-    private ApiResponse(Builder builder) {
+    public ApiResponse(Builder builder) {
         this.message = builder.message;
         this.statusCode = builder.statusCode;
         this.success = builder.success;
+    }
+
+    public ApiResponse(int value, String message) {
+        this.statusCode = HttpStatus.valueOf(value);
+        this.message = message;
+        this.success = value >= 200 && value < 300;
     }
 
     public String getMessage() {

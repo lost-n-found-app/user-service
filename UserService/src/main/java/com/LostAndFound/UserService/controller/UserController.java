@@ -1,6 +1,5 @@
 package com.LostAndFound.UserService.controller;
 
-import com.LostAndFound.UserService.commonClasses.ProductDto;
 import com.LostAndFound.UserService.dto.PasswordUpdateDto;
 import com.LostAndFound.UserService.dto.UserProductDto;
 import com.LostAndFound.UserService.response.ApiResponse;
@@ -22,7 +21,7 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    UserService userService;
+    public UserService userService;
 
     @Autowired
     UserEventProducer eventProducer;
@@ -41,7 +40,7 @@ public class UserController {
     public ResponseEntity<ApiResponse> loginUser(@RequestBody UserDto userDto) {
         logger.info("Received login attempt for user with email: {}", userDto.getEmail());
         ApiResponse response = userService.loginUser(userDto);
-        if(response.getStatusCode()==HttpStatus.OK)
+        if (response.getStatusCode() == HttpStatus.OK)
             logger.info("User login successful for email: {}", userDto.getEmail());
         else
             logger.warn("Login failed for user with email: {}", userDto.getEmail());
@@ -61,5 +60,4 @@ public class UserController {
         ApiResponse response = userService.unLockUserAccount(email);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
-
 }

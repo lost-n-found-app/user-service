@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
+import lombok.AllArgsConstructor;
+@AllArgsConstructor
 public class UserDto {
     @NotBlank(message = "User-Name is mandatory")
     private String userName;
@@ -12,9 +14,6 @@ public class UserDto {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@#$%^&+=]).{8,}$"
             , message = "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character")
     private String password;
-    private String phoneNumber;
-
-
     @Pattern(
             regexp = "^\\+?[0-9]{10,15}$",
             message = "Phone number must be valid and contain 10 to 15 digits"
@@ -55,5 +54,5 @@ public class UserDto {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-    
+
 }
