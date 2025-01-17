@@ -1,13 +1,11 @@
 package com.LostAndFound.UserService.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException {
-    public ResourceNotFoundException()
-    {
+    public ResourceNotFoundException() {
         super();
     }
-    public ResourceNotFoundException(String msg)
-    {
-       super(msg);
-    }
 
+    public ResourceNotFoundException(String msg) {
+        super(msg);
+    }
 }

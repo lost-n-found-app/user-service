@@ -35,5 +35,4 @@ public class UserEventProducer {
             logger.error("Failed to send password reset event: {}", message, e);
         }
     }
-
 }

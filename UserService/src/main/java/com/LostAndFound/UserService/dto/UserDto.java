@@ -1,19 +1,16 @@
 package com.LostAndFound.UserService.dto;
 
-import com.LostAndFound.UserService.enums.RoleEnum;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDto {
 
     private String userName;
     private String email;
     private String password;
     private String phoneNumber;
-
-
-    public UserDto() {
-    }
 
     public String getUserName() {
         return userName;
@@ -46,5 +43,5 @@ public class UserDto {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-    
+
 }

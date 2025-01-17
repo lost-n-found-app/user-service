@@ -1,6 +1,6 @@
 package com.LostAndFound.UserService.exceptions;
 
-public class PasswordMismatchException extends RuntimeException{
+public class PasswordMismatchException extends RuntimeException {
     public PasswordMismatchException() {
     }
 

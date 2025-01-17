@@ -17,7 +17,6 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleEnum roleName;
 
-
     @OneToMany(mappedBy = "role")
     private List<Users> usersList = new ArrayList<>();
 
@@ -50,9 +49,6 @@ public class Role {
 
     @Override
     public String toString() {
-        return "Role{" +
-                "roleId=" + roleId +
-                ", roleName=" + roleName +
-                '}';
+        return "Role{" + "roleId=" + roleId + ", roleName=" + roleName + '}';
     }
 }
