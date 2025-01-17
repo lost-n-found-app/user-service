@@ -32,10 +32,8 @@ eureka:
 server:
   port: 8082
 
-
 jwt:
   secret: dKjmtcDhHxLwh92fP9obxBTK28+/qI7beKsaHR2hPik=
-
 
 twilio:
   account:
