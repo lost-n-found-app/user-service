@@ -2,13 +2,11 @@ package com.LostAndFound.UserService.exceptions;
 
 public class UserAlreadyExistsException extends RuntimeException {
 
-    public UserAlreadyExistsException()
-    {
+    public UserAlreadyExistsException() {
         super();
     }
 
-    public UserAlreadyExistsException(String msg)
-    {
+    public UserAlreadyExistsException(String msg) {
         super(msg);
     }
 }

@@ -4,7 +4,6 @@ import com.LostAndFound.UserService.dto.PasswordUpdateDto;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.service.UserService;
-import com.LostAndFound.UserService.service.service.impl.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    UserService userService;
+    public UserService userService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -33,7 +32,7 @@ public class UserController {
     public ResponseEntity<ApiResponse> loginUser(@RequestBody UserDto userDto) {
         logger.info("Received login attempt for user with email: {}", userDto.getEmail());
         ApiResponse response = userService.loginUser(userDto);
-        if(response.getStatusCode()==HttpStatus.OK)
+        if (response.getStatusCode() == HttpStatus.OK)
             logger.info("User login successful for email: {}", userDto.getEmail());
         else
             logger.warn("Login failed for user with email: {}", userDto.getEmail());
@@ -53,5 +52,4 @@ public class UserController {
         ApiResponse response = userService.unLockUserAccount(email);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
-
 }

@@ -10,7 +10,7 @@ spring:
       data-source-properties:
         ssl: true
         sslmode: require
-        sslrootcert: file:///C:/Users/hp/Downloads/root.crt
+#        sslrootcert: file:///{Your System Root Path}
   jpa:
     hibernate:
       ddl-auto: update
@@ -26,9 +26,19 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
+
   instance:
     prefer-ip-address: true
 server:
   port: 8082
+
 jwt:
   secret: dKjmtcDhHxLwh92fP9obxBTK28+/qI7beKsaHR2hPik=
+
+twilio:
+  account:
+    sid: ACef8ced0aaead209438e88b000c84b5f4
+  auth:
+    token: 9dbbe4188d8e8897254bebf00186f3b1
+  phone:
+    number: +18786887454

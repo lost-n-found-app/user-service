@@ -28,7 +28,7 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException, java.io.IOException {
         UsernamePasswordAuthenticationToken authToken;
-        boolean userExists=true;
+        boolean userExists = true;
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String number;
@@ -45,19 +45,17 @@ public class JWTFilter extends OncePerRequestFilter {
             if (jwtService.validateToken(jwt, number)) {
 
                 userExists = userRepository.existsByPhoneNumber(number);
-                if (userExists==true) {
+                if (userExists) {
                     authToken = new UsernamePasswordAuthenticationToken(
                             number, null, null);
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-                else {
+                } else {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Phone number not found in the database");
                     return;
                 }
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }
