@@ -1,5 +1,6 @@
 package com.LostAndFound.UserService.controller;
 
+import com.LostAndFound.UserService.commonClasses.ProductDto;
 import com.LostAndFound.UserService.dto.PasswordUpdateDto;
 import com.LostAndFound.UserService.dto.UserProductDto;
 import com.LostAndFound.UserService.response.ApiResponse;
