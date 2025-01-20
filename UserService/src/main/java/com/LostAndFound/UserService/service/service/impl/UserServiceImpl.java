@@ -63,12 +63,10 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(LocalDateTime.now());
         user.setPhoneNumber(userDto.getPhoneNumber());
         String phoneNumber = userDto.getPhoneNumber();
-        userRepo.save(user);
         Users save = userRepo.save(user);
         logger.info("User successfully saved with email: {}", userDto.getEmail());
         userEventProducer.sendUserRegisteredEvent("" + user.getUserId());
         notificationService.sendSms(phoneNumber, "Your user has been saved");
-        return new ApiResponse.Builder().message("User Successfully Added").statusCode(HttpStatus.CREATED).success(true).build();
         userEventProducer.createUserWithProducts(save.getUserId(), products);
         userEventProducer.sendUserRegisteredEvent("" + user.getUserId());
         return new ApiResponse.Builder()
