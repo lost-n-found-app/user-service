@@ -21,9 +21,7 @@ public class KafkaConfig {
         configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-
         ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(configs);
-
         return new KafkaTemplate<>(producerFactory);
     }
 

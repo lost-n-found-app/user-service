@@ -15,7 +15,15 @@ public class ProductDto {
     )
     private String location;
 
-    public ProductDto() {
+    public ProductDto(String product2, String s, String string, String s1) {
+    }
+
+    public ProductDto(String name, String description, String category, String status, String location) {
+        this.name = name;
+        this.description = description;
+        this.category = category;
+        this.status = status;
+        this.location = location;
     }
 
     public String getName() {

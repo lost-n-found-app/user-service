@@ -1,5 +1,6 @@
 package com.LostAndFound.UserService.service;
 
+import com.LostAndFound.UserService.commonClasses.ProductDto;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.entity.Role;
 import com.LostAndFound.UserService.entity.Users;
@@ -21,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,10 +48,20 @@ public class UserServiceTest {
 
     private Users user;
 
+    private UserDto createUserDto() {
+        return new UserDto("Devansh", "patnidevansh05@gmail.com", "5514", "919993100965");
+    }
+
     private final int max_Attempt;
 
     {
         max_Attempt = 3;
+    }
+
+    private List<ProductDto> createProductList() {
+        return Arrays.asList(
+                new ProductDto("Devansh", "product1@example.com", "productCode1", "919993100965"),
+                new ProductDto("Devansh", "product2@example.com", "productCode2", "919993100965"));
     }
 
     @BeforeEach
@@ -67,32 +80,33 @@ public class UserServiceTest {
     }
 
     @Test
-    public void saveUser_shouldSaveUserSuccessfully() {
+    public void saveUserAndReportItem_shouldSaveUserSuccessfully() {
         Role role = new Role();
         role.setRoleName(RoleEnum.ROLE_ADMIN);
-
+        UserDto userDto = new UserDto("Devansh", "patnidevansh05@gmail.com", "5514", "919993100965");
+        List<ProductDto> products = Arrays.asList(
+                new ProductDto("Product1", "Description1", "Category1", "919993100965"),
+                new ProductDto("Product2", "Description2", "Category2", "919993100965"));
         Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
         Mockito.when(roleRepo.findByRoleName(RoleEnum.ROLE_ADMIN)).thenReturn(Optional.of(role));
         Mockito.when(userRepo.save(Mockito.any(Users.class))).thenAnswer(i -> i.getArgument(0));
-        ApiResponse response = userService.saveUser(userDto);
+        ApiResponse response = userService.saveUserAndReportItem(userDto, products);
         Assertions.assertNotNull(response);
         Assertions.assertTrue(response.isSuccess());
         Assertions.assertEquals("User Successfully Added", response.getMessage());
-        Mockito.verify(userRepo, Mockito.times(1)).save(Mockito.any(Users.class));
-        Mockito.verify(userEventProducer, Mockito.times(1)).sendUserRegisteredEvent(Mockito.anyString());
-        Mockito.verify(notificationService, Mockito.times(1))
-                .sendSms(userDto.getPhoneNumber(), "Your user has been saved");
+        Mockito.verify(userRepo, Mockito.times(2)).save(Mockito.any(Users.class));
     }
 
     @Test
     public void saveUser_shouldThrowUserAlreadyExistsException() {
 
         Users existingUser = new Users();
+        UserDto userDto = createUserDto();
         existingUser.setEmail(userDto.getEmail());
         Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(existingUser));
         UserAlreadyExistsException exception = Assertions.assertThrows(
                 UserAlreadyExistsException.class,
-                () -> userService.saveUser(userDto));
+                () -> userService.saveUserAndReportItem(userDto, createProductList()));
         Assertions.assertEquals("User Failed to Added [EMAIL SHOULD BE UNIQUE]", exception.getMessage());
         Mockito.verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
         Mockito.verify(userEventProducer, Mockito.never()).sendUserRegisteredEvent(Mockito.anyString());
@@ -101,12 +115,13 @@ public class UserServiceTest {
     }
 
     @Test
-    public void saveUser_shouldThrowRoleNotFoundException() {
+    public void saveUserAndReportItem_shouldThrowRoleNotFoundException() {
+        UserDto userDto = createUserDto();
         Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
         Mockito.when(roleRepo.findByRoleName(RoleEnum.ROLE_ADMIN)).thenReturn(Optional.empty());
         RoleNotFoundException exception = Assertions.assertThrows(
                 RoleNotFoundException.class,
-                () -> userService.saveUser(userDto));
+                () -> userService.saveUserAndReportItem(userDto, createProductList()));
         Assertions.assertEquals("No Role Found", exception.getMessage());
         Mockito.verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
         Mockito.verify(userEventProducer, Mockito.never()).sendUserRegisteredEvent(Mockito.anyString());

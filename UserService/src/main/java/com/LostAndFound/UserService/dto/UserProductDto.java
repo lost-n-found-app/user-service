@@ -2,17 +2,17 @@ package com.LostAndFound.UserService.dto;
 
 import com.LostAndFound.UserService.commonClasses.ProductDto;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@AllArgsConstructor
 public class UserProductDto {
     @Valid
     private UserDto user;
     @Valid
     private List<ProductDto> products;
-
-    public UserProductDto() {
-    }
 
     public UserDto getUser() {
         return user;

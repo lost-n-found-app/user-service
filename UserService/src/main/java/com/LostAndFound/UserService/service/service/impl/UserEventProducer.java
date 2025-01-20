@@ -50,4 +50,6 @@ public class UserEventProducer {
         userProducerMessage.setProducts(products);
         userKafkaTemplate.send("user-product-topic", userProducerMessage);
     }
+
+
 }
