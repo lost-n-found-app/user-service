@@ -6,7 +6,6 @@ import com.LostAndFound.UserService.dto.UserProductDto;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.service.UserService;
-import com.LostAndFound.UserService.service.service.impl.UserEventProducer;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +22,6 @@ public class UserController {
 
     @Autowired
     public UserService userService;
-
-    @Autowired
-    UserEventProducer eventProducer;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 

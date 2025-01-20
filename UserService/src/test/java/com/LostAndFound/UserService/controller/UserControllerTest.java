@@ -1,7 +1,9 @@
 package com.LostAndFound.UserService.controller;
 
+import com.LostAndFound.UserService.commonClasses.ProductDto;
 import com.LostAndFound.UserService.dto.PasswordUpdateDto;
 import com.LostAndFound.UserService.dto.UserDto;
+import com.LostAndFound.UserService.dto.UserProductDto;
 import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -36,14 +40,26 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testSaveUser_ValidRequest() {
+    public void testSaveUserAndReportItem_ValidRequest() {
+        // Prepare the input
         UserDto userDto = new UserDto("Devansh", "patnidevansh05@gmail.com", "5514", "919993100965");
-        ApiResponse apiResponse = new ApiResponse(HttpStatus.OK.value(), "User saved successfully");
-        when(userService.saveUser(userDto)).thenReturn(apiResponse);
-        ResponseEntity<ApiResponse> responseEntity = userController.saveUser(userDto);
+        List<ProductDto> productDtos = List.of(new ProductDto("Product1", "Description1","category","status","indore"), new ProductDto("Product2 ", " Description2"," status "," indore")
+        );
+        UserProductDto userProductDto = new UserProductDto(userDto, productDtos);
+
+        // Expected response
+        ApiResponse apiResponse = new ApiResponse(HttpStatus.OK.value(), "User and products saved successfully");
+        when(userService.saveUserAndReportItem(userDto, productDtos)).thenReturn(apiResponse);
+
+        // Perform the action
+        ResponseEntity<ApiResponse> responseEntity = userController.saveUserAndReportItem(userProductDto);
+
+        // Validate the response
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals("User saved successfully", responseEntity.getBody().getMessage());
-        verify(userService, times(1)).saveUser(userDto);
+        assertEquals("User and products saved successfully", responseEntity.getBody().getMessage());
+
+        // Verify the service call
+        verify(userService, times(1)).saveUserAndReportItem(userDto, productDtos);
     }
 
     @Test
