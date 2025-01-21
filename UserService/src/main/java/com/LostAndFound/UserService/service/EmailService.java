@@ -19,21 +19,21 @@ public class EmailService {
     @Value("${mail.username}")
     private String fromEmail;
 
-    private final Map<String, OtpInfo> tokenStore = new ConcurrentHashMap<>();
+    private final Map<String, OtpInfo> otpStore = new ConcurrentHashMap<>();
 
-    public String generateAndStoreToken(String email) {
+    public String generateAndStoreOtp(String email) {
         Random random = new Random();
-        String token = String.format("%06d", random.nextInt(1000000));
-        tokenStore.put(token, new OtpInfo(email, LocalDateTime.now().plusMinutes(15)));
-        return token;
+        String otp = String.format("%06d", random.nextInt(1000000));
+        otpStore.put(otp, new OtpInfo(email, LocalDateTime.now().plusMinutes(15)));
+        return otp;
     }
 
-    public String validateToken(String token) {
-        OtpInfo otpInfo = tokenStore.get(token);
+    public String validateOtp(String otp) {
+        OtpInfo otpInfo = otpStore.get(otp);
         if (otpInfo == null || otpInfo.getExpiryTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Invalid or expired token");
+            throw new RuntimeException("Invalid or expired otp");
         }
-        tokenStore.remove(token);
+        otpStore.remove(otp);
         return otpInfo.getEmail();
     }
 

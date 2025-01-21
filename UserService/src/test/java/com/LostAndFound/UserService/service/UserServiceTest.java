@@ -227,7 +227,7 @@ public class UserServiceTest {
         String email = "user@example.com";
         when(userRepo.findByEmail(email)).thenReturn(Optional.of(new Users()));
         String mockToken = "123456";
-        when(emailService.generateAndStoreToken(email)).thenReturn(mockToken);
+        when(emailService.generateAndStoreOtp(email)).thenReturn(mockToken);
 
         boolean result = userService.handlePasswordResetRequest(email);
 
@@ -250,7 +250,7 @@ public class UserServiceTest {
         Users user = new Users();
         user.setEmail(email);
         user.setPassword("oldPassword123");
-        when(emailService.validateToken(token)).thenReturn(email);
+        when(emailService.validateOtp(token)).thenReturn(email);
         when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
         ApiResponse response = userService.updatePassword(passwordUpdateDto);
         Assertions.assertEquals("User Password Successfully Updated", response.getMessage());
@@ -266,7 +266,7 @@ public class UserServiceTest {
         PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(token, "newPassword123", "differentPassword",token);
         Users user = new Users();
         user.setEmail(email);
-        when(emailService.validateToken(anyString())).thenReturn(email);
+        when(emailService.validateOtp(anyString())).thenReturn(email);
         when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
         PasswordMismatchException exception = assertThrows(
                 PasswordMismatchException.class,
@@ -277,7 +277,7 @@ public class UserServiceTest {
     void testUpdatePassword_InvalidToken() {
         String token = "invalid-token";
         PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(token, "newPassword123", "newPassword123",token);
-        when(emailService.validateToken(token)).thenThrow(new IllegalArgumentException("Token validation failed"));
+        when(emailService.validateOtp(token)).thenThrow(new IllegalArgumentException("Token validation failed"));
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> userService.updatePassword(passwordUpdateDto));
@@ -288,7 +288,7 @@ public class UserServiceTest {
         String token = "valid-token";
         String email = "notfound@example.com";
         PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(token, "newPassword123", "newPassword123",token);
-        when(emailService.validateToken(token)).thenReturn(email);
+        when(emailService.validateOtp(token)).thenReturn(email);
         when(userRepo.findByEmail(email)).thenReturn(Optional.empty());
         ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
@@ -302,7 +302,7 @@ public class UserServiceTest {
         String email = "test@example.com";
         PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(email, "newPassword123", "newPassword123",token);
         Users user = new Users();
-        when(emailService.validateToken(token)).thenReturn(email);
+        when(emailService.validateOtp(token)).thenReturn(email);
         when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
         doThrow(new RuntimeException("Database error")).when(userRepo).save(user);
         RuntimeException exception = assertThrows(

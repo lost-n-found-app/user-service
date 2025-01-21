@@ -83,8 +83,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean handlePasswordResetRequest(String email) {
         if (userRepo.findByEmail(email).isPresent()) {
-            String token = emailService.generateAndStoreToken(email);
-            emailService.sendEmail(email, "Forgot Password", "This is the code by which  you can reset your password please do not share this with anyone\n" + token);
+            String otp = emailService.generateAndStoreOtp(email);
+            emailService.sendEmail(email, "Forgot Password", "This is the code by which  you can reset your password please do not share this with anyone\n" + otp);
             return true;
         }
         return false;
@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ApiResponse updatePassword(PasswordUpdateDto passwordUpdate) {
-        String email = emailService.validateToken(passwordUpdate.getToken());
+        String email = emailService.validateOtp(passwordUpdate.getOtp());
 
         Users users = userRepo.findByEmail(email).orElseThrow(() -> {
             logger.error("Password update failed: No user found for email: {}", passwordUpdate.getEmail());

@@ -5,13 +5,13 @@ public class PasswordUpdateDto {
     private String email;
     private String newPassword;
     private String reEnterPassword;
-    private String token;
+    private String otp;
 
-    public PasswordUpdateDto(String email, String newPassword, String reEnterPassword,String token) {
+    public PasswordUpdateDto(String email, String newPassword, String reEnterPassword,String otp) {
         this.email = email;
         this.newPassword = newPassword;
         this.reEnterPassword = reEnterPassword;
-        this.token=token;
+        this.otp=otp;
     }
 
     public String getEmail() {
@@ -20,12 +20,12 @@ public class PasswordUpdateDto {
 
     public void setEmail(String email) {this.email = email;}
 
-    public String getToken() {
-        return token;
+    public String getOtp() {
+        return otp;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setOtp(String otp) {
+        this.otp = otp;
     }
     public String getNewPassword() {
         return newPassword;
