@@ -57,4 +57,16 @@ public class UserController {
         ApiResponse response = userService.unLockUserAccount(email);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
+
+    @GetMapping("/forgotPassword")
+    public String forgotPassword(@RequestParam("email") String email)
+    {
+        boolean passwordSent=userService.handlePasswordResetRequest(email);
+        if(passwordSent)
+        {
+            return "Email sent";
+        }
+        throw new RuntimeException("Email not found");
+    }
+
 }

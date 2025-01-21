@@ -35,20 +35,20 @@ public class JwtServiceTest {
     @Test
     public void validateToken_shouldReturnFalseForInvalidPhoneNumber() {
         Claims claims = mock(Claims.class);
-        when(claims.getSubject()).thenReturn("1234567890"); // Mock subject to return a phone number
-        when(claims.getExpiration()).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Mock non-expired token
+        when(claims.getSubject()).thenReturn("1234567890");
+        when(claims.getExpiration()).thenReturn(new Date(System.currentTimeMillis() + 10000));
         JwtService spyJwtService = Mockito.spy(jwtService);
         doReturn(claims).when(spyJwtService).extractAllClaims(anyString());
         String validToken = "validToken";
-        boolean isValid = spyJwtService.validateToken(validToken, "0987654321"); // Invalid phone number
+        boolean isValid = spyJwtService.validateToken(validToken, "0987654321");
         assertFalse(isValid);
     }
 
     @Test
     public void validateToken_shouldReturnFalseForExpiredToken() {
         Claims claims = mock(Claims.class);
-        when(claims.getSubject()).thenReturn("1234567890"); // Mock subject to return a phone number
-        when(claims.getExpiration()).thenReturn(new Date(System.currentTimeMillis() - 10000)); // Mock expired token
+        when(claims.getSubject()).thenReturn("1234567890");
+        when(claims.getExpiration()).thenReturn(new Date(System.currentTimeMillis() - 10000));
         JwtService spyJwtService = Mockito.spy(jwtService);
         doReturn(claims).when(spyJwtService).extractAllClaims(anyString());
         String validToken = "validToken";
@@ -59,7 +59,7 @@ public class JwtServiceTest {
     @Test
     public void extractNumber_shouldReturnCorrectPhoneNumber() {
         Claims claims = mock(Claims.class);
-        when(claims.getSubject()).thenReturn("1234567890"); // Mock subject to return a phone number
+        when(claims.getSubject()).thenReturn("1234567890");
         JwtService spyJwtService = Mockito.spy(jwtService);
         doReturn(claims).when(spyJwtService).extractAllClaims(anyString());
         String token = "validToken";

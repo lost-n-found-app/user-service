@@ -1,10 +1,12 @@
 package com.LostAndFound.UserService.service;
 
 import com.LostAndFound.UserService.commonClasses.ProductDto;
+import com.LostAndFound.UserService.dto.PasswordUpdateDto;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.entity.Role;
 import com.LostAndFound.UserService.entity.Users;
 import com.LostAndFound.UserService.enums.RoleEnum;
+import com.LostAndFound.UserService.exceptions.PasswordMismatchException;
 import com.LostAndFound.UserService.exceptions.ResourceNotFoundException;
 import com.LostAndFound.UserService.exceptions.RoleNotFoundException;
 import com.LostAndFound.UserService.exceptions.UserAlreadyExistsException;
@@ -21,10 +23,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.http.HttpStatus;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -40,6 +46,9 @@ public class UserServiceTest {
 
     @Mock
     private NotificationService notificationService;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -87,14 +96,14 @@ public class UserServiceTest {
         List<ProductDto> products = Arrays.asList(
                 new ProductDto("Product1", "Description1", "Category1", "919993100965"),
                 new ProductDto("Product2", "Description2", "Category2", "919993100965"));
-        Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
-        Mockito.when(roleRepo.findByRoleName(RoleEnum.ROLE_ADMIN)).thenReturn(Optional.of(role));
-        Mockito.when(userRepo.save(Mockito.any(Users.class))).thenAnswer(i -> i.getArgument(0));
+        when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
+        when(roleRepo.findByRoleName(RoleEnum.ROLE_ADMIN)).thenReturn(Optional.of(role));
+        when(userRepo.save(Mockito.any(Users.class))).thenAnswer(i -> i.getArgument(0));
         ApiResponse response = userService.saveUserAndReportItem(userDto, products);
         Assertions.assertNotNull(response);
-        Assertions.assertTrue(response.isSuccess());
+        assertTrue(response.isSuccess());
         Assertions.assertEquals("User Successfully Added", response.getMessage());
-        Mockito.verify(userRepo, Mockito.times(2)).save(Mockito.any(Users.class));
+        verify(userRepo, times(2)).save(Mockito.any(Users.class));
     }
 
     @Test
@@ -103,87 +112,85 @@ public class UserServiceTest {
         Users existingUser = new Users();
         UserDto userDto = createUserDto();
         existingUser.setEmail(userDto.getEmail());
-        Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(existingUser));
+        when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(existingUser));
         UserAlreadyExistsException exception = Assertions.assertThrows(
                 UserAlreadyExistsException.class,
                 () -> userService.saveUserAndReportItem(userDto, createProductList()));
         Assertions.assertEquals("User Failed to Added [EMAIL SHOULD BE UNIQUE]", exception.getMessage());
-        Mockito.verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
-        Mockito.verify(userEventProducer, Mockito.never()).sendUserRegisteredEvent(Mockito.anyString());
-        Mockito.verify(notificationService, Mockito.never())
+        verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
+        verify(userEventProducer, Mockito.never()).sendUserRegisteredEvent(Mockito.anyString());
+        verify(notificationService, Mockito.never())
                 .sendSms(Mockito.anyString(), Mockito.anyString());
     }
 
     @Test
     public void saveUserAndReportItem_shouldThrowRoleNotFoundException() {
         UserDto userDto = createUserDto();
-        Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
-        Mockito.when(roleRepo.findByRoleName(RoleEnum.ROLE_ADMIN)).thenReturn(Optional.empty());
+        when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
+        when(roleRepo.findByRoleName(RoleEnum.ROLE_ADMIN)).thenReturn(Optional.empty());
         RoleNotFoundException exception = Assertions.assertThrows(
                 RoleNotFoundException.class,
                 () -> userService.saveUserAndReportItem(userDto, createProductList()));
         Assertions.assertEquals("No Role Found", exception.getMessage());
-        Mockito.verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
-        Mockito.verify(userEventProducer, Mockito.never()).sendUserRegisteredEvent(Mockito.anyString());
-        Mockito.verify(notificationService, Mockito.never())
+        verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
+        verify(userEventProducer, Mockito.never()).sendUserRegisteredEvent(Mockito.anyString());
+        verify(notificationService, Mockito.never())
                 .sendSms(Mockito.anyString(), Mockito.anyString());
     }
 
     @Test
     public void loginUser_shouldLoginSuccessfully() {
-        Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
         ApiResponse response = userService.loginUser(userDto);
-
         Assertions.assertNotNull(response);
-        Assertions.assertTrue(response.isSuccess());
+        assertTrue(response.isSuccess());
         Assertions.assertEquals("User Successfully Login", response.getMessage());
-        Mockito.verify(userRepo, Mockito.times(1)).save(user);
+        verify(userRepo, times(1)).save(user);
     }
 
     @Test
     public void loginUser_shouldFailWhenEmailNotFound() {
-        Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
+        when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
         ResourceNotFoundException exception = Assertions.assertThrows(
                 ResourceNotFoundException.class,
                 () -> userService.loginUser(userDto));
         Assertions.assertEquals("Email is Incorrect ", exception.getMessage());
-        Mockito.verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
+        verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
     }
 
     @Test
     public void loginUser_shouldFailWhenPasswordIsIncorrect() {
         userDto.setPassword("wrongPassword");
-        Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
         ApiResponse response = userService.loginUser(userDto);
         Assertions.assertNotNull(response);
-        Assertions.assertFalse(response.isSuccess());
+        assertFalse(response.isSuccess());
         Assertions.assertEquals("Invalid credentials ,You Have only 3 attempts ", response.getMessage());
-        Mockito.verify(userRepo, Mockito.times(1)).save(user);
+        verify(userRepo, times(1)).save(user);
     }
 
     @Test
     public void loginUser_shouldLockUserAfterMaxAttempts() {
         user.setLoginAttempts(max_Attempt - 1);
         userDto.setPassword("wrongPassword");
-        Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
         ApiResponse response = userService.loginUser(userDto);
         Assertions.assertNotNull(response);
-        Assertions.assertFalse(response.isSuccess());
+        assertFalse(response.isSuccess());
         Assertions.assertEquals("Invalid credentials ,You Have only 3 attempts ", response.getMessage());
-        Assertions.assertTrue(user.isLocked());
-        Mockito.verify(userRepo, Mockito.times(1)).save(user);
+        assertTrue(user.isLocked());
+        verify(userRepo, times(1)).save(user);
     }
 
     @Test
     public void loginUser_shouldFailWhenUserIsLocked() {
         user.setLocked(true);
-        Mockito.when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
         ApiResponse response = userService.loginUser(userDto);
-
         Assertions.assertNotNull(response);
-        Assertions.assertFalse(response.isSuccess());
+        assertFalse(response.isSuccess());
         Assertions.assertEquals("User account is locked due to too many failed attempts.", response.getMessage());
-        Mockito.verify(userRepo, Mockito.never()).save(user);
+        verify(userRepo, Mockito.never()).save(user);
     }
 
     @Test
@@ -193,24 +200,114 @@ public class UserServiceTest {
         user.setEmail(email);
         user.setLocked(true);
         user.setLoginAttempts(3);
-        Mockito.when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
         ApiResponse response = userService.unLockUserAccount(email);
         Assertions.assertNotNull(response);
-        Assertions.assertTrue(response.isSuccess());
+        assertTrue(response.isSuccess());
         Assertions.assertEquals("Successfully UnLock User Account", response.getMessage());
-        Mockito.verify(userRepo, Mockito.times(1)).save(user);
-        Assertions.assertFalse(user.isLocked());
+        verify(userRepo, times(1)).save(user);
+        assertFalse(user.isLocked());
         Assertions.assertEquals(0, user.getLoginAttempts());
     }
 
     @Test
     public void unLockUserAccount_shouldThrowExceptionWhenEmailNotFound() {
         String email = "nonexistent@example.com";
-        Mockito.when(userRepo.findByEmail(email)).thenReturn(Optional.empty());
+        when(userRepo.findByEmail(email)).thenReturn(Optional.empty());
         ResourceNotFoundException exception = Assertions.assertThrows(
                 ResourceNotFoundException.class,
                 () -> userService.unLockUserAccount(email));
         Assertions.assertEquals("Email is Incorrect ", exception.getMessage());
-        Mockito.verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
+        verify(userRepo, Mockito.never()).save(Mockito.any(Users.class));
     }
+
+    @Test
+    void testHandlePasswordResetRequest_UserExists() {
+
+        String email = "user@example.com";
+        when(userRepo.findByEmail(email)).thenReturn(Optional.of(new Users()));
+        String mockToken = "123456";
+        when(emailService.generateAndStoreOtp(email)).thenReturn(mockToken);
+
+        boolean result = userService.handlePasswordResetRequest(email);
+
+        assertTrue(result, "Password reset request should return true for existing user");
+      }
+
+    @Test
+    void testHandlePasswordResetRequest_UserDoesNotExist() {
+        String email = "nonexistent@example.com";
+        when(userRepo.findByEmail(email)).thenReturn(Optional.empty());
+        boolean result = userService.handlePasswordResetRequest(email);
+        assertFalse(result, "Password reset request should return false for non-existing user");
+        }
+
+    @Test
+    void testUpdatePassword_Success() {
+        String token = "valid-token";
+        String email = "test@example.com";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(token, "newPassword123", "newPassword123",token);
+        Users user = new Users();
+        user.setEmail(email);
+        user.setPassword("oldPassword123");
+        when(emailService.validateOtp(token)).thenReturn(email);
+        when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
+        ApiResponse response = userService.updatePassword(passwordUpdateDto);
+        Assertions.assertEquals("User Password Successfully Updated", response.getMessage());
+        Assertions.assertTrue(response.isSuccess());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(userRepo, times(1)).save(user);
+    }
+
+    @Test
+    void testUpdatePassword_PasswordMismatch() {
+        String token = "valid-token";
+        String email = "test@example.com";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(token, "newPassword123", "differentPassword",token);
+        Users user = new Users();
+        user.setEmail(email);
+        when(emailService.validateOtp(anyString())).thenReturn(email);
+        when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
+        PasswordMismatchException exception = assertThrows(
+                PasswordMismatchException.class,
+                () -> userService.updatePassword(passwordUpdateDto));
+        Assertions.assertEquals("New Password Does Not Match with Re- enter Password", exception.getMessage());
+    }
+    @Test
+    void testUpdatePassword_InvalidToken() {
+        String token = "invalid-token";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(token, "newPassword123", "newPassword123",token);
+        when(emailService.validateOtp(token)).thenThrow(new IllegalArgumentException("Token validation failed"));
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.updatePassword(passwordUpdateDto));
+        Assertions.assertEquals("Token validation failed", exception.getMessage());
+    }
+    @Test
+    void testUpdatePassword_UserNotFound() {
+        String token = "valid-token";
+        String email = "notfound@example.com";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(token, "newPassword123", "newPassword123",token);
+        when(emailService.validateOtp(token)).thenReturn(email);
+        when(userRepo.findByEmail(email)).thenReturn(Optional.empty());
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> userService.updatePassword(passwordUpdateDto));
+        Assertions.assertEquals("No User Found By This Email", exception.getMessage());
+    }
+
+    @Test
+    void testUpdatePassword_SaveUserError() {
+        String token = "valid-token";
+        String email = "test@example.com";
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto(email, "newPassword123", "newPassword123",token);
+        Users user = new Users();
+        when(emailService.validateOtp(token)).thenReturn(email);
+        when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
+        doThrow(new RuntimeException("Database error")).when(userRepo).save(user);
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> userService.updatePassword(passwordUpdateDto));
+        Assertions.assertEquals("Database error", exception.getMessage());
+       }
 }

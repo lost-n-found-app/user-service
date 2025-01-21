@@ -16,4 +16,6 @@ public interface UserService {
     public ApiResponse updatePassword(PasswordUpdateDto passwordUpdate);
 
     ApiResponse saveUserAndReportItem(UserDto user, List<ProductDto> products);
+
+    public boolean handlePasswordResetRequest(String email);
 }

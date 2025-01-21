@@ -3,15 +3,15 @@ package com.LostAndFound.UserService.dto;
 public class PasswordUpdateDto {
 
     private String email;
-    private String currentPassword;
     private String newPassword;
     private String reEnterPassword;
+    private String otp;
 
-    public PasswordUpdateDto(String email, String currentPassword, String newPassword, String reEnterPassword) {
+    public PasswordUpdateDto(String email, String newPassword, String reEnterPassword,String otp) {
         this.email = email;
-        this.currentPassword = currentPassword;
         this.newPassword = newPassword;
         this.reEnterPassword = reEnterPassword;
+        this.otp=otp;
     }
 
     public String getEmail() {
@@ -20,12 +20,13 @@ public class PasswordUpdateDto {
 
     public void setEmail(String email) {this.email = email;}
 
-    public String getCurrentPassword() {
-        return currentPassword;
+    public String getOtp() {
+        return otp;
     }
 
-    public void setCurrentPassword(String currentPassword) {this.currentPassword = currentPassword;}
-
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
     public String getNewPassword() {
         return newPassword;
     }

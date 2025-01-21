@@ -10,6 +10,7 @@ import com.LostAndFound.UserService.response.ApiResponse;
 import com.LostAndFound.UserService.dto.UserDto;
 import com.LostAndFound.UserService.entity.Users;
 import com.LostAndFound.UserService.repository.UserRepository;
+import com.LostAndFound.UserService.service.EmailService;
 import com.LostAndFound.UserService.service.NotificationService;
 import com.LostAndFound.UserService.service.UserService;
 import org.slf4j.Logger;
@@ -36,6 +37,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserEventProducer userEventProducer;
+
+    @Autowired
+    EmailService emailService;
 
     private static final int max_Attempt = 3;
 
@@ -74,6 +78,16 @@ public class UserServiceImpl implements UserService {
                 .message("User Successfully Added")
                 .statusCode(HttpStatus.CREATED)
                 .success(true).build();
+    }
+
+    @Override
+    public boolean handlePasswordResetRequest(String email) {
+        if (userRepo.findByEmail(email).isPresent()) {
+            String otp = emailService.generateAndStoreOtp(email);
+            emailService.sendEmail(email, "Forgot Password", "This is the code by which  you can reset your password please do not share this with anyone\n" + otp);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -122,28 +136,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ApiResponse updatePassword(PasswordUpdateDto passwordUpdate) {
-        Users users = userRepo.findByEmail(passwordUpdate.getEmail()).orElseThrow(() -> {
+        String email = emailService.validateOtp(passwordUpdate.getOtp());
+
+        Users users = userRepo.findByEmail(email).orElseThrow(() -> {
             logger.error("Password update failed: No user found for email: {}", passwordUpdate.getEmail());
             return new ResourceNotFoundException("No User Found By This Email");
         });
-        if (passwordUpdate.getCurrentPassword() != null && users.getPassword().equals(passwordUpdate.getCurrentPassword())) {
-            logger.info("Current password validation successful for email: {}", passwordUpdate.getEmail());
-
-            if (passwordUpdate.getNewPassword().equals(passwordUpdate.getReEnterPassword())) {
-                logger.info("New password match validation successful for email: {}", passwordUpdate.getEmail());
-                users.setPassword(passwordUpdate.getNewPassword());
-                userRepo.save(users);
-                userEventProducer.sendPasswordResetEvent("" + users.getUserId());
-                logger.info("Password updated successfully for email: {}", passwordUpdate.getEmail());
-            } else {
-                logger.error("New password does not match re-entered password for email: {}", passwordUpdate.getEmail());
-                throw new PasswordMismatchException("New Password Does Not Match with Re- enter Password");
-            }
+        if (passwordUpdate.getNewPassword().equals(passwordUpdate.getReEnterPassword())) {
+            logger.info("New password match validation successful for email: {}", passwordUpdate.getEmail());
+            users.setPassword(passwordUpdate.getNewPassword());
+            userRepo.save(users);
+            userEventProducer.sendPasswordResetEvent("" + users.getUserId());
+            logger.info("Password updated successfully for email: {}", passwordUpdate.getEmail());
         } else {
-            logger.error("Current password is incorrect for email: {}", passwordUpdate.getEmail());
-            throw new PasswordMismatchException("Current Password Is Incorrect ");
+            logger.error("New password does not match re-entered password for email: {}", passwordUpdate.getEmail());
+            throw new PasswordMismatchException("New Password Does Not Match with Re- enter Password");
         }
+
         return new ApiResponse.Builder().message("User Password Successfully Updated").statusCode(HttpStatus.OK).success(true).build();
+
     }
 }
 
