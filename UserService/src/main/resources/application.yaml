@@ -10,7 +10,7 @@ spring:
       data-source-properties:
         ssl: true
         sslmode: require
-#        sslrootcert: file:///{Your System Root Path}
+        sslrootcert: file:///C:/Users/ASUS/Downloads/root.crt
   jpa:
     hibernate:
       ddl-auto: update
@@ -46,6 +46,19 @@ twilio:
   account:
     sid: ACef8ced0aaead209438e88b000c84b5f4
   auth:
-    token: 9dbbe4188d8e8897254bebf00186f3b1
+    token: bc0ec85dba26c06ec5886ca84ca210aa
   phone:
     number: +18786887454
+
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: sanviilostnfound@gmail.com
+  password: smwl qyqu bnwp tmys
+  protocol: smtp
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
