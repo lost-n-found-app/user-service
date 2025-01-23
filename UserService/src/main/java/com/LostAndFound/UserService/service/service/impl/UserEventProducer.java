@@ -43,7 +43,7 @@ public class UserEventProducer {
         }
     }
 
-    public void createUserWithProducts(UUID userId, List<ProductDto> products) {
+    public void createUserWithProducts(Long userId, List<ProductDto> products) {
         logger.info("Sent password reset event: {}", userId.toString());
         UserProducerMessage userProducerMessage = new UserProducerMessage();
         userProducerMessage.setUserId(userId);
@@ -51,5 +51,14 @@ public class UserEventProducer {
         userKafkaTemplate.send("user-product-topic", userProducerMessage);
     }
 
+    public void sendProductStatusUpdate(UUID productId, String status) {
+        String message = productId.toString() + ":" + status;
+        try {
+            kafkaTemplate.send("product-status-update", message);
+            logger.info("Sent product status update event: {}", message);
+        } catch (Exception e) {
+            logger.error("Failed to send product status update event: {}", message, e);
+        }
+    }
 
 }

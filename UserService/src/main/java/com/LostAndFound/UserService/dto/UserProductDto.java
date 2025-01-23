@@ -3,10 +3,12 @@ package com.LostAndFound.UserService.dto;
 import com.LostAndFound.UserService.commonClasses.ProductDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Data
 @AllArgsConstructor
 public class UserProductDto {
     @Valid
