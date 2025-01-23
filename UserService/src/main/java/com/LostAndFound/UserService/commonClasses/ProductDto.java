@@ -2,7 +2,11 @@ package com.LostAndFound.UserService.commonClasses;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 public class ProductDto {
     @NotBlank(message = "Product Name is mandatory")
     private String name;
@@ -10,7 +14,7 @@ public class ProductDto {
     private String category;
     private String status;
     @Pattern(
-            regexp = "^(.*),\\s*(\\w+),\\s*(\\w+),\\s*\\d{6}$",
+            regexp = "^[a-zA-Z0-9\\s]+,\\s[a-zA-Z\\s]+,\\s[a-zA-Z\\s]+,\\s\\d{6}$",
             message = "Location must be in the format: 'Street Address, City, State, PIN_CODE'"
     )
     private String location;

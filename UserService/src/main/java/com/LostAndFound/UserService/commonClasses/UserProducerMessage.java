@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class UserProducerMessage {
     @JsonProperty("userId")
-    private UUID userId;
+    private Long userId;
 
     @JsonProperty("products")
     private List<ProductDto> products;
@@ -15,11 +15,11 @@ public class UserProducerMessage {
     public UserProducerMessage() {
     }
 
-    public UUID getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(UUID userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

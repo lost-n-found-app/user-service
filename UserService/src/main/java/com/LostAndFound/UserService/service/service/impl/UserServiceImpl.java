@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -74,6 +73,7 @@ public class UserServiceImpl implements UserService {
         notificationService.sendSms(phoneNumber, "Your user has been saved");
         userEventProducer.createUserWithProducts(save.getUserId(), products);
         userEventProducer.sendUserRegisteredEvent("" + user.getUserId());
+        emailService.sendEmail(user.getEmail(),"You item has been successfully saved\n",user.getUserId()+"\n"+user.getPhoneNumber()+"\n"+products);
         return new ApiResponse.Builder()
                 .message("User Successfully Added")
                 .statusCode(HttpStatus.CREATED)

@@ -14,11 +14,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Objects;
 
+import static net.minidev.asm.BeansAccess.get;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
@@ -41,24 +47,15 @@ public class UserControllerTest {
 
     @Test
     public void testSaveUserAndReportItem_ValidRequest() {
-        // Prepare the input
         UserDto userDto = new UserDto("Devansh", "patnidevansh05@gmail.com", "5514", "919993100965");
-        List<ProductDto> productDtos = List.of(new ProductDto("Product1", "Description1","category","status","indore"), new ProductDto("Product2 ", " Description2"," status "," indore")
+        List<ProductDto> productDtos = List.of(new ProductDto("Product1", "Description1", "category", "status", "indore"), new ProductDto("Product2 ", " Description2", " status ", " indore")
         );
         UserProductDto userProductDto = new UserProductDto(userDto, productDtos);
-
-        // Expected response
         ApiResponse apiResponse = new ApiResponse(HttpStatus.OK.value(), "User and products saved successfully");
         when(userService.saveUserAndReportItem(userDto, productDtos)).thenReturn(apiResponse);
-
-        // Perform the action
         ResponseEntity<ApiResponse> responseEntity = userController.saveUserAndReportItem(userProductDto);
-
-        // Validate the response
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals("User and products saved successfully", responseEntity.getBody().getMessage());
-
-        // Verify the service call
         verify(userService, times(1)).saveUserAndReportItem(userDto, productDtos);
     }
 
@@ -68,7 +65,7 @@ public class UserControllerTest {
         when(userService.loginUser(userDto)).thenReturn(apiResponse);
         ResponseEntity<ApiResponse> responseEntity = userController.loginUser(userDto);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals("Login successful", responseEntity.getBody().getMessage());
+        assertEquals("Login successful", Objects.requireNonNull(responseEntity.getBody()).getMessage());
         verify(userService, times(1)).loginUser(userDto);
     }
 
@@ -130,6 +127,22 @@ public class UserControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertEquals("Invalid password update request", responseEntity.getBody().getMessage());
         verify(userService, times(1)).updatePassword(passwordUpdateDto);
+    }
+    @Test
+    public void testForgotPassword_EmailSent() {
+        String email = "test@example.com";
+        when(userService.handlePasswordResetRequest(email)).thenReturn(true);
+        String result = userController.forgotPassword(email);
+        assertEquals("Email sent", result);
+    }
+
+    @Test
+    public void testForgotPassword_EmailNotFound() {
+        String email = "nonexistent@example.com";
+        when(userService.handlePasswordResetRequest(email)).thenReturn(false);
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            userController.forgotPassword(email); });
+        assertEquals("Email not found", exception.getMessage());
     }
 }
 
